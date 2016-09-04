@@ -72,6 +72,8 @@ fn_check_vars(){
 
 # Adding a user with the correct homedir
 fn_add_user(){
+	echo "Creating ${username}..."
+	sleep 1
 	useradd -m -d "${userdir}" "${username}"
 	echo "Please, input a password for ${username}"
 	sleep 1
