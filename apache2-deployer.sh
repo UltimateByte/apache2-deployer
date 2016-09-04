@@ -37,7 +37,7 @@ fn_check_vars(){
 	fi
  
 	# Checking that the variable directory has been set
-	if [ -z "${webdir}" ]; then
+	if [ -n "${webdir}" ]; then
 		check_webdir=0
 	else
 		check_webdir=1
