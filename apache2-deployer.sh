@@ -23,7 +23,6 @@ apacheprocess="www-data"
 if [ -z "$1" ] || [ -z "$2" ]; then
 	echo "Info! Please, specify a username and a domain for the website"
 	echo "Example: ./${selfname} username domain.com"
-	sleep 1
 	exit 1
 elif [ -n "$3" ]; then
 	echo "[ERROR] Too many arguments!"
