@@ -39,7 +39,7 @@ chmod +x apache2-deployer.sh
 
 ### Demo
 
-````bash
+````
 root@terageek:~# ./apache2-deployer.sh terageek www.terageek.org
 Checking config...
 
