@@ -109,8 +109,10 @@ Reloading apache2 to apply config...
 Time to add your website into /websites/terageek/public_html
 Time to make terageek.org point to this machine
 
+
 ###################### Credits  ########################
- -Idea and base: BassSpleen
+
+ -Initial script: BassSpleen
  -Code overhaul: UltimateByte (terageek.org & gameservermanagers.com)
 [OK] We wish you the best!
 ````
