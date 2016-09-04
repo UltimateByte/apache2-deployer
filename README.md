@@ -12,7 +12,8 @@ Easier website deployment with user based folders for Apache 2
 
 # Usage
 
-Note: This script needs elevated privileges (root or sudo)
+Note: This script needs elevated privileges (root or sudo)  
+Should work with most Debian based distros with Apache2 installed
 
 
 #### Get the script
