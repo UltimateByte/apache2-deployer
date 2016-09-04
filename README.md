@@ -28,7 +28,7 @@ nano apache2-deployer.sh
 ````bash
 chmod +x apache2-deployer.sh
 ````
-#### Run it with proper arguments (don't worry about the "www.", the script will add it into the virtualhosts)
+#### Run it with proper arguments (don't worry about the "www", the script will add it into the virtualhosts)
 ````bash
 ./apache2-deployer.sh username domain.com
 ````
