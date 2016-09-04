@@ -59,7 +59,7 @@ Target directory: /websites/terageek/public_html
 Continue? [Y/n]y
 Let's go!
 
-#################### User Creation ####################
+#################### User Creation #####################
 
 Creating terageek...
 [OK] User created!
@@ -85,12 +85,12 @@ Adding terageek group to www-data...
 Restarting apache2 to enable group modifications...
 [OK] apache2 restarted!
 
-################# VirtualHosts Creation #################
+################# VirtualHosts Creation ################
 
 Generating config file...
 [OK] Config file generated!
 
-################## Enabling Website ##################
+################### Enabling Website ###################
 
 Enabling config for terageek.org...
 Enabling site terageek.org.
