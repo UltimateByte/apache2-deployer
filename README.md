@@ -1,17 +1,38 @@
 # apache2-deployer
 Easier website deployment with user based folders for Apache 2
 
+# Functionalities
+* Creates a user with its home folder in any desired location
+* Creates web folder inside user's folder
+* Applies proper rules on web folder
+* Makes apache2 part of user's group
+* Creates the virtualhosts automatically!
+* Enables the website
+* Reloads when necessary
+
 # Usage
 
-As root : 
+Note: This script needs elevated privileges (root or sudo)
 
+
+#### Get the script
 ````bash
 wget https://raw.githubusercontent.com/UltimateByte/apache2-deployer/master/apache2-deployer.sh
+````
+#### Edit two lines of config if needed
+````bash
+nano apache2-deployer.sh
+````
+#### Make it executable
+````bash
 chmod +x apache2-deployer.sh
+````
+#### Run it with proper arguments (don't worry about the "www.", the script will add it into the virtualhosts)
+````bash
 ./apache2-deployer.sh username domain.com
 ````
+#### Enjoy!
 
-Enjoy
 
 
 
