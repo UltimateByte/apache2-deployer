@@ -120,7 +120,7 @@ fn_welcome_prompt(){
 # Adding a user with the correct homedir
 fn_add_user(){
 	echo ""
-	echo "#################### User Creation ####################"
+	echo "#################### User Creation #####################"
 	echo ""
 	sleep 2
 	echo "Creating ${username}..."
@@ -171,7 +171,7 @@ fn_web_directory(){
 # Create the Virtual Host config file and enable the site in apache
 fn_create_vhosts(){
 	echo ""
-	echo "################# VirtualHosts Creation #################"
+	echo "################# VirtualHosts Creation ################"
 	echo ""
 	sleep 2
 	echo "Generating config file..."
@@ -204,7 +204,7 @@ fn_create_vhosts(){
 # Enable the website and restart apache
 fn_ensite(){
 	echo ""
-	echo "################## Enabling Website ##################"
+	echo "################### Enabling Website ###################"
 	echo ""
 	sleep 2
 	echo "Enabling config for ${domain}..."
@@ -220,7 +220,8 @@ fn_ensite(){
 }
 
 fn_conclusion(){
-	
+	echo ""
+	echo ""
 	echo "########################################################"
 	echo "###################### Job Done  #######################"
 	echo "########################################################"
@@ -228,10 +229,12 @@ fn_conclusion(){
 	echo ""
 	echo "Time to add your website into ${targetdir}"
 	echo "Time to make ${domain} point to this machine"
-	sleep 2
+	sleep 3
+	echo ""
 	echo ""
 	echo "###################### Credits  ########################"
-	echo " -Idea and base: BassSpleen"
+	echo ""
+	echo " -Initial script: BassSpleen"
 	echo " -Code overhaul: UltimateByte (terageek.org & gameservermanagers.com)"
 	echo "[OK] We wish you the best!"
 }
