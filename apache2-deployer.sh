@@ -121,7 +121,7 @@ fn_create_vhosts(){
 	LogLevel warn
 	ErrorLog \${APACHE_LOG_DIR}/${domain}-error.log
 	CustomLog \${APACHE_LOG_DIR}/${domain}-access.log combined
-</VirtualHost>" << "${apache_sites}"/"${domain}".conf
+</VirtualHost>" >> "${apache_sites}"/"${domain}".conf
 }
 
 fn_ensite(){
