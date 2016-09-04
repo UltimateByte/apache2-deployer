@@ -1,54 +1,158 @@
 #!/bin/bash
-# Author: BassSpleen
-# Contributor: UltimateByte
-# Addsite script
+# Authors: UltimateByte, BassSpleen
+# Description: Creates required files and folders to deploy an apache2 website in one command
  
-# Variables
-apache_home_dir="public_html"
-apache_sites="/etc/apache2/sites-available"
- 
-# Checking if a username and a domain was given, if not displaying the correct usage and stop the script.
-if [ -z "$1" ] || [ -z "$2" ]; then
-    echo "Please specify a username and a domain for the website"
-    echo "Example : ./apache2-deployer.sh username domain.com"
-    exit 1
-fi
+# Settings Variables
+homedir="/home"
+webdir="public_html"
 
-# Adding a new user, prompting for the password then create the website folder in the user's home
-useradd -m "$1"
-passwd "$1"
-cd /home/"$1"
-mkdir "${apache_home_dir}"
-# Applying ownership/permissions to the website folder.
-chown -R "$1":"$1" "${apache_home_dir}"
-chmod -R 770 "${apache_home_dir}"
-chmod -R g+s "${apache_home_dir}"
-setfacl -d -R -m u::rwx "${apache_home_dir}"
-setfacl -d -R -m g::rwx "${apache_home_dir}"
-usermod -a -G "$1" www-data
+###########
+# Program #
+###########
+
+# Misc Variables
+selfname="$(basename "$(readlink -f "${BASH_SOURCE[0]}")")"
+apache_sites="/etc/apache2/sites-available"
+
+# Check that the script is launched with elevated privileges
+fn_check_root(){
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run with elevated privileges"
+   exit 1
+fi
+}
+
+# Check that the user inputted two arguments
+fn_check_userinput(){
+ if [ -z "$1" ] || [ -z "$2" ]; then
+  echo "Please specify a username and a domain for the website"
+  echo "Example : ./${selfname} username domain.com"
+  exit 1
+ elif [ -n "$3" ]; then
+  echo "Too many arguments!"
+  echo "Please specify a username and a domain for the website"
+  echo "Example : ./${selfname} username domain.com"
+  exit 1
+ else
+  # Use a variable name that makes sense
+  username="${1}"
+  # Strip www. from user input since we're adding it as an alias
+  domain="${2#www.}"
+ fi
+ }
+ 
+ # Checking script config
+ fn_check_vars(){
+  echo "Checking config..."
+  sleep 1
+  
+  # Checking that the home directory exists
+  if [ -d "${homedir}" ]; then
+   check_homedir=0
+  else
+   check_homedir=1
+   echo "Could not find ${homedir}"
+   echo "Please, set a valid homedir value"
+   sleep 2
+  fi
+  
+  # Checking that the variable directory has been set
+  if [ -z "${webdir}" ]; then
+   check_webdir=0
+  else
+   check_webdir=1
+   echo "No webdir set"
+   echo "Please, set a valid webdir"
+   sleep 2
+  fi
+  
+  # Checking that Apache2 websites-available folder exists
+  if [ -d "${apache_sites}" ]; then
+   check_apachedir=0
+  else
+   check_apachedir=1
+   echo "${apache_sites} folder not found"
+   echo "Please, install Apache2"
+   sleep 2
+  fi
+  
+  # Check summ up
+  if [ "${check_homedir}" == "1" ] || [ "${check_webdir}" == "1" ] || [ "${check_apachedir}" == "1" ]; then
+   echo "Exiting"
+   sleep 2
+   exit 1
+  else
+   echo "Config OK!"
+   # Setting directories
+   userdir="${homedir}/${username}"
+   targetdir="${userdir}/${webdir}"
+   sleep 1
+  fi
+ }
+
+# Adding a user with the correct homedir
+fn_add_user(){
+useradd -m -d "${userdir}" "${username}"
+echo "Please, input a password for ${username}"
+sleep 1
+passwd "${username}"
+echo "Password set!"
+sleep 1
+}
+
+# Creating the web directory and applying permissions
+fn_web_directory(){
+echo "Creating the web directory"
+sleep 1
+mkdir -pv "${targetdir}"
+echo "Applying correct ownership/permissions to the website folder..."
+sleep 1
+chown -R "${username}":"${username}" "${targetdir}"
+chmod -R 770 "${targetdir}"
+chmod -R g+s "${targetdir}"
+echo "Adding ${username} group to www-data"
+sleep 1
+usermod -a -G "${username}" www-data
+}
+
 # Create the Virtual Host config file and enable the site in apache
-cd "${apache_sites}"
-touch "$2".conf
-echo "<VirtualHost *:80>" >> "$2".conf
-echo "  # Addresses" >> "$2".conf
-echo "  ServerName $2" >> "$2".conf
-echo "  ServerAlias www.$2" >> "$2".conf
-echo "  ServerAdmin admin@localhost" >> "$2".conf
-echo "" >> "$2".conf
-echo "  # Directory and rules" >> "$2".conf
-echo "  DocumentRoot /home/$1/${apache_home_dir}" >> "$2".conf
-echo "  <Directory /home/$1/${apache_home_dir}>" >> "$2".conf
-echo "    Options Indexes FollowSymLinks MultiViews" >> "$2".conf
-echo "    AllowOverride All" >> "$2".conf
-echo "    Require all granted" >> "$2".conf
-echo "  </Directory>" >> "$2".conf
-echo "" >> "$2".conf
-echo "  # Logging" >> "$2".conf
-echo "  # LogLevel settings : debug, info, notice, warn, error, crit, alert" >> "$2".conf
-echo "  LogLevel warn" >> "$2".conf
-echo "  ErrorLog \${APACHE_LOG_DIR}/$2-error.log" >> "$2".conf
-echo "  CustomLog \${APACHE_LOG_DIR}/$2-access.log combined" >> "$2".conf
-echo "</VirtualHost>" >> "$2".conf
-a2ensite "$2".conf
+
+fn_create_vhosts(){
+	touch "${apache_sites}"/"${domain}".conf
+	
+	echo "<VirtualHost *:80>
+	# Addresses
+	ServerName ${domain}
+	ServerAlias www.${domain}
+	ServerAdmin admin@localhost
+
+	# Directory and rules
+	DocumentRoot ${targetdir}
+	<Directory ${targetdir}>
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+
+	# Logging
+	# LogLevel settings : debug, info, notice, warn, error, crit, alert
+	LogLevel warn
+	ErrorLog \${APACHE_LOG_DIR}/${domain}-error.log
+	CustomLog \${APACHE_LOG_DIR}/${domain}-access.log combined
+</VirtualHost>"
+}
+
+fn_ensite(){
+a2ensite "${domain}".conf
+echo "Enableing website ${domain}"
 # Reloading apache to activate the new website
 service apache2 reload
+}
+
+fn_check_root
+fn_check_userinput
+fn_check_vars
+fn_add_user
+fn_web_directory
+fn_create_vhosts
+fn_ensite
