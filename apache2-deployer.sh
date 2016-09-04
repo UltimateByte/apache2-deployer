@@ -121,14 +121,14 @@ fn_create_vhosts(){
 	LogLevel warn
 	ErrorLog \${APACHE_LOG_DIR}/${domain}-error.log
 	CustomLog \${APACHE_LOG_DIR}/${domain}-access.log combined
-</VirtualHost>"
+</VirtualHost>" << "${apache_sites}"/"${domain}".conf
 }
 
 fn_ensite(){
 	echo "Enableing website ${domain}"
 	sleep 1
 	a2ensite "${domain}".conf
-	echo "Restarting Apache2"
+	echo "Reloading Apache2 config"
 	sleep 1
 	# Reloading apache to activate the new website
 	service apache2 reload
