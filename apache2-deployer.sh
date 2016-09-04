@@ -149,6 +149,22 @@ echo "Enableing website ${domain}"
 service apache2 reload
 }
 
+fn_conclusion(){
+	echo ""
+	echo "Job done!"
+	sleep 1
+	echo "Time to add your website into ${targetdir}"
+	echo "Time to make ${domain} point to this machine"
+	sleep 1
+	echo ""
+	echo "Credits:"
+	echo " -Idea and base: BassSpleen"
+	echo " -Code rework: UltimateByte (terageek.org & gameservermanagers.com)"
+	echo""
+	sleep 1
+	echo "We wish you the best!"
+}
+
 fn_check_root
 fn_check_userinput
 fn_check_vars
@@ -156,3 +172,4 @@ fn_add_user
 fn_web_directory
 fn_create_vhosts
 fn_ensite
+fn_conclusion
