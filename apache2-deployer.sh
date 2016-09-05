@@ -291,11 +291,9 @@ fn_conclusion(){
 	echo "Info! Time to add your website into ${targetdir}"
 	echo "Info! Time to make ${domain} point to this machine"
 	echo ""
-	echo ""
 	echo "###################### Credits  ########################"
-	echo ""
-	echo " -Initial script: BassSpleen"
-	echo " -Code overhaul: UltimateByte (terageek.org & gameservermanagers.com)"
+	echo "UltimateByte: Main development"
+	echo "BassSpleen: Idea and initial script"
 	echo "[OK] We wish you the best!"
 }
 
