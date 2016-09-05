@@ -51,10 +51,13 @@ Checking config...
 
 Welcome!
 
-Here are your settings:
-Domain: terageek.org
-Username: terageek
-Target directory: /websites/terageek/public_html
+Please, take a moment to review your settings:
+
+User: terageek will be created
+Web directory: /websites/terageek/public_html will be created
+Permissions will be fixed in /websites/terageek/public_html
+Umask will be set to umask 007 for terageek if possible
+Vhost: /etc/apache2/sites-available/terageek.org.conf will be created and enabled
 
 Continue? [Y/n]y
 Let's go!
@@ -69,6 +72,11 @@ Enter new UNIX password:
 Retype new UNIX password:
 passwd: password updated successfully
 [OK] Password set!
+
+##################### Fixing Umask ####################
+
+Fixing user umask (default permissions on files)
+[OK] Umask umask 007 set!
 
 ################## Directory Creation ##################
 
@@ -87,8 +95,8 @@ Restarting apache2 to enable group modifications...
 
 ################# VirtualHosts Creation ################
 
-Generating config file...
-[OK] Config file generated!
+Generating Virtual Host...
+[OK] Virtual Host generated!
 
 ################### Enabling Website ###################
 
@@ -106,13 +114,72 @@ Reloading apache2 to apply config...
 ###################### Job Done  #######################
 ########################################################
 
-Time to add your website into /websites/terageek/public_html
-Time to make terageek.org point to this machine
-
+Info! Time to add your website into /websites/terageek/public_html
+Info! Time to make terageek.org point to this machine
 
 ###################### Credits  ########################
+UltimateByte: Main development
+BassSpleen: Idea and initial script
+[OK] We wish you the best!
+````
 
- -Initial script: BassSpleen
- -Code overhaul: UltimateByte (terageek.org & gameservermanagers.com)
+### Demo on an existing user
+
+````
+root@terageek:~# ./apache2-deployer.sh terageek www.terageek.org
+Checking config...
+
+[OK] Config test passed!
+
+########################################################
+########## Apache 2 website deployment script ##########
+########################################################
+
+Welcome!
+
+Please, take a moment to review your settings:
+
+User: terageek exists and will not be created
+Web directory: /websites/terageek/public_html will be created if it doesn't exist
+Permissions will be fixed in /websites/terageek/public_html
+Umask will be set to umask 007 for terageek if possible
+
+Continue? [Y/n]y
+Let's go!
+
+##################### Fixing Umask ####################
+
+Info! It appears that umask 007 is already set for terageek
+
+################## Directory Creation ##################
+
+Creating the web directory...
+Info! /websites/terageek/public_html already exists
+
+Applying correct ownership & permissions to the website folder...
+[OK] Ownership & permissions set!
+
+Adding terageek group to www-data...
+[OK] Added user group to www-data!
+
+Restarting apache2 to enable group modifications...
+[OK] apache2 restarted!
+
+################# VirtualHosts Creation ################
+
+VirtualHost already exists!
+It won't be touched.
+
+
+########################################################
+###################### Job Done  #######################
+########################################################
+
+Info! Time to add your website into /websites/terageek/public_html
+Info! Time to make terageek.org point to this machine
+
+###################### Credits  ########################
+UltimateByte: Main development
+BassSpleen: Idea and initial script
 [OK] We wish you the best!
 ````
