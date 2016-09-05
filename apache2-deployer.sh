@@ -193,24 +193,24 @@ fn_web_directory(){
 	else
 		mkdir -pv "${targetdir}"
 		echo "[OK] Directory created!"
-		echo ""
-		echo "Applying correct ownership & permissions to the website folder..."
-		sleep 1
-		chown -R "${username}":"${username}" "${targetdir}"
-		chmod -R 770 "${targetdir}"
-		chmod -R g+s "${targetdir}"
-		echo "[OK] Ownership & permissions set!"
-		echo ""
-		echo "Adding ${username} group to ${apacheprocess}..."
-		sleep 2
-		usermod -a -G "${username}" "${apacheprocess}"
-		echo "[OK] Added user group to ${apacheprocess}!"
-		echo ""
-		echo "Restarting apache2 to enable group modifications..."
-		sleep 1
-		service apache2 restart
-		echo "[OK] apache2 restarted!"
 	fi
+	echo ""
+	echo "Applying correct ownership & permissions to the website folder..."
+	sleep 1
+	chown -R "${username}":"${username}" "${targetdir}"
+	chmod -R 770 "${targetdir}"
+	chmod -R g+s "${targetdir}"
+	echo "[OK] Ownership & permissions set!"
+	echo ""
+	echo "Adding ${username} group to ${apacheprocess}..."
+	sleep 2
+	usermod -a -G "${username}" "${apacheprocess}"
+	echo "[OK] Added user group to ${apacheprocess}!"
+	echo ""
+	echo "Restarting apache2 to enable group modifications..."
+	sleep 1
+	service apache2 restart
+	echo "[OK] apache2 restarted!"
 }
 
 # Create the Virtual Host config file and enable the site in apache
