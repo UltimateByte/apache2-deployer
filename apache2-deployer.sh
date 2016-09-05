@@ -99,7 +99,7 @@ fn_check_vars(){
 
 # Checks if the user exists and sets the test variable
 fn_check_user_exists(){
-	if [ $(grep "${username}" /etc/passwd) ]; then
+	if [ "$(grep "${username}" /etc/passwd)" ]; then
 		userexists="1"
 		if [ ! -d "${targetdir}" ]; then
 			echo "[ERROR] no target directory to fix"
@@ -119,21 +119,24 @@ fn_welcome_prompt(){
 	echo ""
 	echo "Welcome!"
 	echo ""
+	echo "Please, take a moment to review your settings:"
+	echo ""
 	if [ "${userexists}" == "0" ]; then
-		echo "${username} will be created"
-		echo ""
+		echo "User: ${username} will be created"
+		echo "Web directory: ${targetdir} will be created"
 	elif [ "${userexists}" == "1" ]; then
-		echo "${username} exists and will not be created"
-		echo "${webdir} directory will be created if needed"
-		echo "Permissions will be fixed"
-		echo ""
+		echo "User: ${username} exists and will not be created"
+		echo "Web directory: ${targetdir} will be created if it doesn't exist"
 	else
 		echo "[ERROR] Could not determine if ${username} exists"
 		echo "Please, open a Github issue"
 		exit 1
 	fi
-	echo "${domain} VirtualHosts will be created if they don't exist"
-	echo "Target directory: ${targetdir}"
+	echo "Permissions will be fixed in ${targetdir}"
+	echo "Umask will be set to ${tumask} for ${username} if possible"
+	if [ ! -f "${apache_sites}/${domain}.conf" ]; then
+	echo "Vhost: ${apache_sites}/${domain}.conf will be created and enabled"
+	fi
 	echo ""
 	while true; do
 		read -e -i "y" -p "Continue? [Y/n]" yn
@@ -174,6 +177,8 @@ fn_fix_umask(){
 			sleep 1
 			sed -i "s/${defumask}/${tumask}/g" "${userdir}"/.profile
 			echo "[OK] Umask ${tumask} set!"
+		elif [ "$(cat "${userdir}/.profile" | grep "${tumask}")" ]; then
+			echo "Info! It appears that ${tumask} is already set for ${username}"
 		else
 			echo "[Warning] Default umask not found, no change will be applied"
 		fi
