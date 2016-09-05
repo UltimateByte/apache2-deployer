@@ -99,7 +99,7 @@ fn_check_vars(){
 
 # Checks if the user exists and sets the test variable
 fn_check_user_exists(){
-	if [ -z "$(grep -q "${username}" /etc/passwd)" ]; then
+	if [ -z "$(grep "${username}" /etc/passwd)" ]; then
 		userexists="0"
 	else
 		userexists="1"
