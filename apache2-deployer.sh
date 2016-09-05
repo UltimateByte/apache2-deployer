@@ -20,7 +20,7 @@ selfname="$(basename "$(readlink -f "${BASH_SOURCE[0]}")")"
 apache_sites="/etc/apache2/sites-available"
 apacheprocess="www-data"
 defumask="#umask 022"
-umask="umask 007"
+tumask="umask 007"
 
 # Check that the user inputted two arguments
 if [ -z "$1" ] || [ -z "$2" ]; then
@@ -172,8 +172,8 @@ fn_fix_umask(){
 		if [ "$(cat "${userdir}/.profile" | grep \"${defumask}\")" ]; then
 			echo "Fixing user umask (default permissions on files)"
 			sleep 1
-			sed -i "s/${defumask}/${umask}/g" "${userdir}"/.profile
-			echo "[OK] ${umask} set!"
+			sed -i "s/${defumask}/${tumask}/g" "${userdir}"/.profile
+			echo "[OK] Umask ${tumask} set!"
 		else
 			echo "[Warning] Default umask not found, no change will be applied"
 		fi
