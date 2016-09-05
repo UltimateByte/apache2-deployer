@@ -3,6 +3,7 @@
 # Authors: UltimateByte, BassSpleen
 # Website: https://www.terageek.org
 # Description: Creates required files and folders to deploy an apache2 website in one command
+# Version: 0.2
  
 ### SETTINGS ##
 # The parent folder for your user's home directory (usually /home)
