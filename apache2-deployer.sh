@@ -96,6 +96,20 @@ fn_check_vars(){
 	fi
 }
 
+# Checks if the user exists and sets the test variable
+fn_check_user_exists(){
+	if [ -z $(grep ${username} /etc/passwd) ]; then
+		userexists="0"
+	else
+		userexists="1"
+		if [ ! -d "${targetdir}" ]; then
+			echo "[ERROR] no target directory to fix"
+			echo "This script needs ${targetdir} to exist"
+			echo "Maybe edit the script variables accordingly"
+		fi
+	fi
+}
+
 fn_welcome_prompt(){
 	echo "########################################################"
 	echo "########## Apache 2 website deployment script ##########"
@@ -104,6 +118,20 @@ fn_welcome_prompt(){
 	echo ""
 	echo "Welcome!"
 	echo ""
+	if [ "${userexists}" == "0" ]; then
+		echo "${username} and Virtual Hosts will be created"
+		echo ""
+	elif [ "${userexists}" == "1" ]; then
+		echo "${username} exists"
+		echo "Virtual Hosts will be created if it does not exist"
+		echo "Permissions will be fixed"
+		echo "HTML directory will be created if needed"
+		echo ""
+	else
+		echo "[ERROR] Could not determine if ${username} exists"
+		echo "Please, open a Github issue"
+		exit 1
+	fi
 	echo "Here are your settings:"
 	echo "Domain: ${domain}"
 	echo "Username: ${username}"
@@ -121,18 +149,20 @@ fn_welcome_prompt(){
 
 # Adding a user with the correct homedir
 fn_add_user(){
-	echo ""
-	echo "#################### User Creation #####################"
-	echo ""
-	sleep 1
-	echo "Creating ${username}..."
-	sleep 1
-	useradd -m -d "${userdir}" "${username}"
-	echo "[OK] User created!"
-	echo ""
-	echo "[PASSWORD] Please, input a password for ${username}"
-	passwd "${username}"
-	echo "[OK] Password set!"
+	if [ "${userexists}" == "0" ]; then
+		echo ""
+		echo "#################### User Creation #####################"
+		echo ""
+		sleep 1
+		echo "Creating ${username}..."
+		sleep 1
+		useradd -m -d "${userdir}" "${username}"
+		echo "[OK] User created!"
+		echo ""
+		echo "[PASSWORD] Please, input a password for ${username}"
+		passwd "${username}"
+		echo "[OK] Password set!"
+	fi
 }
 
 fn_fix_umask(){
@@ -140,10 +170,14 @@ fn_fix_umask(){
 	echo "##################### Fixing Umask ####################"
 	echo ""	
 	sleep 2
-	echo "Fixing user umask (default permissions on files)"
-	sleep 1
-	sed -i "s/${defumask}/${umask}/g" "${userdir}"/.profile
-	echo "[OK] ${umask} set!"
+	if [ -n $(cat "${userdir}"/.profile | grep ${defumask}) ]; then
+		echo "[Warning] Default umask not found, no change will be applied"
+	else
+		echo "Fixing user umask (default permissions on files)"
+		sleep 1
+		sed -i "s/${defumask}/${umask}/g" "${userdir}"/.profile
+		echo "[OK] ${umask} set!"
+	fi
 }
 
 # Creating the web directory and applying permissions
@@ -154,25 +188,29 @@ fn_web_directory(){
 	sleep 1
 	echo "Creating the web directory..."
 	sleep 1
-	mkdir -pv "${targetdir}"
-	echo "[OK] Directory created!"
-	echo ""
-	echo "Applying correct ownership & permissions to the website folder..."
-	sleep 1
-	chown -R "${username}":"${username}" "${targetdir}"
-	chmod -R 770 "${targetdir}"
-	chmod -R g+s "${targetdir}"
-	echo "[OK] Ownership & permissions set!"
-	echo ""
-	echo "Adding ${username} group to ${apacheprocess}..."
-	sleep 2
-	usermod -a -G "${username}" "${apacheprocess}"
-	echo "[OK] Added user group to ${apacheprocess}!"
-	echo ""
-	echo "Restarting apache2 to enable group modifications..."
-	sleep 1
-	service apache2 restart
-	echo "[OK] apache2 restarted!"
+	if [ -d "${targetdir}" ]; then
+		echo "Info! ${targetdir} already exists"
+	else
+		mkdir -pv "${targetdir}"
+		echo "[OK] Directory created!"
+		echo ""
+		echo "Applying correct ownership & permissions to the website folder..."
+		sleep 1
+		chown -R "${username}":"${username}" "${targetdir}"
+		chmod -R 770 "${targetdir}"
+		chmod -R g+s "${targetdir}"
+		echo "[OK] Ownership & permissions set!"
+		echo ""
+		echo "Adding ${username} group to ${apacheprocess}..."
+		sleep 2
+		usermod -a -G "${username}" "${apacheprocess}"
+		echo "[OK] Added user group to ${apacheprocess}!"
+		echo ""
+		echo "Restarting apache2 to enable group modifications..."
+		sleep 1
+		service apache2 restart
+		echo "[OK] apache2 restarted!"
+	fi
 }
 
 # Create the Virtual Host config file and enable the site in apache
@@ -181,9 +219,15 @@ fn_create_vhosts(){
 	echo "################# VirtualHosts Creation ################"
 	echo ""
 	sleep 2
-	echo "Generating Virtual Host..."
-	touch "${apache_sites}"/"${domain}".conf
-	sleep 1
+	if [ -f "${apache_sites}/${domain}.conf" ]; then
+		vhostexists="1"
+		echo "VirtualHost already exists!"
+		echo "It won't be touched."
+	else	
+		vhostexists="0"
+		echo "Generating Virtual Host..."
+		touch "${apache_sites}/${domain}.conf"
+		sleep 1
 	echo "<VirtualHost *:80>
 	# Addresses
 	ServerName ${domain}
@@ -204,26 +248,29 @@ fn_create_vhosts(){
 	ErrorLog \${APACHE_LOG_DIR}/${domain}-error.log
 	CustomLog \${APACHE_LOG_DIR}/${domain}-access.log combined
 </VirtualHost>" >> "${apache_sites}"/"${domain}".conf
-	echo "[OK] Virtual Host generated!"
+		echo "[OK] Virtual Host generated!"
+	fi
 }
 
 # Enable the website and restart apache
 fn_ensite(){
-	echo ""
-	echo "################### Enabling Website ###################"
-	echo ""
-	sleep 2
-	echo "Enabling config for ${domain}..."
-	sleep 1
-	a2ensite "${domain}".conf
-	echo "[OK] Config enabled"
-	echo ""
-	echo "Reloading apache2 to apply config..."
-	sleep 1
-	# Reloading apache to activate the new website
-	service apache2 reload
-	echo "[OK] apache2 reloaded"
-	sleep 1
+	if [ "${vhostexists}" == "0" ]; then
+		echo ""
+		echo "################### Enabling Website ###################"
+		echo ""
+		sleep 2
+		echo "Enabling config for ${domain}..."
+		sleep 1
+		a2ensite "${domain}".conf
+		echo "[OK] Config enabled"
+		echo ""
+		echo "Reloading apache2 to apply config..."
+		sleep 1
+		# Reloading apache to activate the new website
+		service apache2 reload
+		echo "[OK] apache2 reloaded"
+		sleep 1
+	fi
 }
 
 fn_conclusion(){
