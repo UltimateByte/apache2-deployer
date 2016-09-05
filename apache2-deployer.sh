@@ -10,6 +10,13 @@ homedir="/home"
 # The name of you website's folder (usually public_html or www)
 webdir="public_html"
 
+# ADVANCED
+# Change only if you know what you're doing
+# Default umask to replace from your user's .profile file
+defumask="#umask 022"
+# Desired umask (007 is equivalent to chmod 770)
+umask="umask 007"
+
 #############
 ## Program ##
 #############
@@ -80,7 +87,7 @@ fn_check_vars(){
  
 	# Check summ up
 	if [ "${check_homedir}" == "1" ] || [ "${check_webdir}" == "1" ] || [ "${check_apachedir}" == "1" ]; then
-		echo "Exiting..."
+		echo "Info! Errors found, exiting..."
 		sleep 1
 		exit 1
 	else
@@ -98,7 +105,7 @@ fn_welcome_prompt(){
 	echo "########################################################"
 	echo "########## Apache 2 website deployment script ##########"
 	echo "########################################################"
-	sleep 2
+	sleep 1
 	echo ""
 	echo "Welcome!"
 	echo ""
@@ -122,17 +129,26 @@ fn_add_user(){
 	echo ""
 	echo "#################### User Creation #####################"
 	echo ""
-	sleep 2
+	sleep 1
 	echo "Creating ${username}..."
 	sleep 1
 	useradd -m -d "${userdir}" "${username}"
 	echo "[OK] User created!"
-	sleep 1
 	echo ""
 	echo "[PASSWORD] Please, input a password for ${username}"
 	passwd "${username}"
 	echo "[OK] Password set!"
+}
+
+fn_fix_umask(){
+	echo ""
+	echo "##################### Fixing Umask ####################"
+	echo ""	
+	sleep 2
+	echo "Fixing user umask (default permissions on files)"
 	sleep 1
+	sed -i 's/"${defumask}"/${umask}/g' ${userdir}/.profile
+	echo "[OK] ${umask} set!"
 }
 
 # Creating the web directory and applying permissions
@@ -140,32 +156,28 @@ fn_web_directory(){
 	echo ""
 	echo "################## Directory Creation ##################"
 	echo ""
-	sleep 2
+	sleep 1
 	echo "Creating the web directory..."
 	sleep 1
 	mkdir -pv "${targetdir}"
 	echo "[OK] Directory created!"
-	sleep 1
 	echo ""
 	echo "Applying correct ownership & permissions to the website folder..."
-	sleep 2
+	sleep 1
 	chown -R "${username}":"${username}" "${targetdir}"
 	chmod -R 770 "${targetdir}"
 	chmod -R g+s "${targetdir}"
 	echo "[OK] Ownership & permissions set!"
-	sleep 1
 	echo ""
 	echo "Adding ${username} group to ${apacheprocess}..."
 	sleep 2
 	usermod -a -G "${username}" "${apacheprocess}"
 	echo "[OK] Added user group to ${apacheprocess}!"
-	sleep 1
 	echo ""
 	echo "Restarting apache2 to enable group modifications..."
 	sleep 1
 	service apache2 restart
 	echo "[OK] apache2 restarted!"
-	sleep 1
 }
 
 # Create the Virtual Host config file and enable the site in apache
@@ -174,7 +186,7 @@ fn_create_vhosts(){
 	echo "################# VirtualHosts Creation ################"
 	echo ""
 	sleep 2
-	echo "Generating config file..."
+	echo "Generating Virtual Host..."
 	touch "${apache_sites}"/"${domain}".conf
 	sleep 1
 	echo "<VirtualHost *:80>
@@ -197,8 +209,7 @@ fn_create_vhosts(){
 	ErrorLog \${APACHE_LOG_DIR}/${domain}-error.log
 	CustomLog \${APACHE_LOG_DIR}/${domain}-access.log combined
 </VirtualHost>" >> "${apache_sites}"/"${domain}".conf
-	echo "[OK] Config file generated!"
-	sleep 1
+	echo "[OK] Virtual Host generated!"
 }
 
 # Enable the website and restart apache
@@ -211,6 +222,7 @@ fn_ensite(){
 	sleep 1
 	a2ensite "${domain}".conf
 	echo "[OK] Config enabled"
+	echo ""
 	echo "Reloading apache2 to apply config..."
 	sleep 1
 	# Reloading apache to activate the new website
@@ -225,11 +237,10 @@ fn_conclusion(){
 	echo "########################################################"
 	echo "###################### Job Done  #######################"
 	echo "########################################################"
-	sleep 2
+	sleep 1
 	echo ""
-	echo "Time to add your website into ${targetdir}"
-	echo "Time to make ${domain} point to this machine"
-	sleep 3
+	echo "Info! Time to add your website into ${targetdir}"
+	echo "Info! Time to make ${domain} point to this machine"
 	echo ""
 	echo ""
 	echo "###################### Credits  ########################"
@@ -244,6 +255,7 @@ fn_check_root
 fn_check_vars
 fn_welcome_prompt
 fn_add_user
+fn_fix_umask
 fn_web_directory
 fn_create_vhosts
 fn_ensite
