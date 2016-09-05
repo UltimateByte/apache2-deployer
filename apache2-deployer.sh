@@ -99,15 +99,15 @@ fn_check_vars(){
 
 # Checks if the user exists and sets the test variable
 fn_check_user_exists(){
-	if [ -z "$(grep "${username}" /etc/passwd)" ]; then
-		userexists="0"
-	else
+	if [ $(grep "${username}" /etc/passwd) ]; then
 		userexists="1"
 		if [ ! -d "${targetdir}" ]; then
 			echo "[ERROR] no target directory to fix"
 			echo "This script needs ${targetdir} to exist"
 			echo "Maybe edit the script variables accordingly"
 		fi
+	else
+		userexists="0"
 	fi
 }
 
@@ -120,29 +120,26 @@ fn_welcome_prompt(){
 	echo "Welcome!"
 	echo ""
 	if [ "${userexists}" == "0" ]; then
-		echo "${username} and Virtual Hosts will be created"
+		echo "${username} will be created"
 		echo ""
 	elif [ "${userexists}" == "1" ]; then
-		echo "${username} exists"
-		echo "Virtual Hosts will be created if it does not exist"
+		echo "${username} exists and will not be created"
+		echo "${webdir} directory will be created if needed"
 		echo "Permissions will be fixed"
-		echo "HTML directory will be created if needed"
 		echo ""
 	else
 		echo "[ERROR] Could not determine if ${username} exists"
 		echo "Please, open a Github issue"
 		exit 1
 	fi
-	echo "Here are your settings:"
-	echo "Domain: ${domain}"
-	echo "Username: ${username}"
+	echo "${domain} VirtualHosts will be created if they don't exist"
 	echo "Target directory: ${targetdir}"
 	echo ""
 	while true; do
 		read -e -i "y" -p "Continue? [Y/n]" yn
 		case $yn in
 		[Yy]* ) echo "Let's go!"; sleep 1; break;;
-		[Nn]* ) echo "Maybe next time!"; return;;
+		[Nn]* ) echo "Maybe next time!"; exit 0;;
 		* ) echo "Please answer yes or no.";;
 	esac
 	done
@@ -171,13 +168,13 @@ fn_fix_umask(){
 	echo "##################### Fixing Umask ####################"
 	echo ""	
 	sleep 2
-	if [ -n "$(cat "${userdir}"/.profile | grep "${defumask}")" ]; then
-		echo "[Warning] Default umask not found, no change will be applied"
-	else
+	if [ $(cat "${userdir}"/.profile | grep "${defumask}") ]; then
 		echo "Fixing user umask (default permissions on files)"
 		sleep 1
 		sed -i "s/${defumask}/${umask}/g" "${userdir}"/.profile
 		echo "[OK] ${umask} set!"
+	else
+		echo "[Warning] Default umask not found, no change will be applied"
 	fi
 }
 
