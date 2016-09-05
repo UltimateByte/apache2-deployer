@@ -295,6 +295,7 @@ fn_conclusion(){
 # Starting functions
 fn_check_root
 fn_check_vars
+fn_check_user_exists
 fn_welcome_prompt
 fn_add_user
 fn_fix_umask
