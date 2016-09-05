@@ -168,13 +168,17 @@ fn_fix_umask(){
 	echo "##################### Fixing Umask ####################"
 	echo ""	
 	sleep 2
-	if [ $(cat "${userdir}"/.profile | grep "${defumask}") ]; then
-		echo "Fixing user umask (default permissions on files)"
-		sleep 1
-		sed -i "s/${defumask}/${umask}/g" "${userdir}"/.profile
-		echo "[OK] ${umask} set!"
+	if [ -f "${userdir}/.profile" ]; then
+		if [ "$(cat "${userdir}/.profile" | grep \"${defumask}\")" ]; then
+			echo "Fixing user umask (default permissions on files)"
+			sleep 1
+			sed -i "s/${defumask}/${umask}/g" "${userdir}"/.profile
+			echo "[OK] ${umask} set!"
+		else
+			echo "[Warning] Default umask not found, no change will be applied"
+		fi
 	else
-		echo "[Warning] Default umask not found, no change will be applied"
+		echo "[Warning] ${userdir}/.profile doesn't exist, cannot determine Umask"
 	fi
 }
 
