@@ -98,7 +98,7 @@ fn_check_vars(){
 
 # Checks if the user exists and sets the test variable
 fn_check_user_exists(){
-	if [ -z $(grep ${username} /etc/passwd) ]; then
+	if [ -z "$(grep -q "${username}" /etc/passwd)" ]; then
 		userexists="0"
 	else
 		userexists="1"
@@ -170,7 +170,7 @@ fn_fix_umask(){
 	echo "##################### Fixing Umask ####################"
 	echo ""	
 	sleep 2
-	if [ -n $(cat "${userdir}"/.profile | grep ${defumask}) ]; then
+	if [ -n "$(cat "${userdir}"/.profile | grep "${defumask}")" ]; then
 		echo "[Warning] Default umask not found, no change will be applied"
 	else
 		echo "Fixing user umask (default permissions on files)"
