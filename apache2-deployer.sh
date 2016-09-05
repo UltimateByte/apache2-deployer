@@ -169,7 +169,7 @@ fn_fix_umask(){
 	echo ""	
 	sleep 2
 	if [ -f "${userdir}/.profile" ]; then
-		if [ "$(cat "${userdir}/.profile" | grep \"${defumask}\")" ]; then
+		if [ "$(cat "${userdir}/.profile" | grep "${defumask}")" ]; then
 			echo "Fixing user umask (default permissions on files)"
 			sleep 1
 			sed -i "s/${defumask}/${tumask}/g" "${userdir}"/.profile
