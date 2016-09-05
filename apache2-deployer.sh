@@ -10,13 +10,6 @@ homedir="/home"
 # The name of you website's folder (usually public_html or www)
 webdir="public_html"
 
-# ADVANCED
-# Change only if you know what you're doing
-# Default umask to replace from your user's .profile file
-defumask="#umask 022"
-# Desired umask (007 is equivalent to chmod 770)
-umask="umask 007"
-
 #############
 ## Program ##
 #############
@@ -25,6 +18,8 @@ umask="umask 007"
 selfname="$(basename "$(readlink -f "${BASH_SOURCE[0]}")")"
 apache_sites="/etc/apache2/sites-available"
 apacheprocess="www-data"
+defumask="#umask 022"
+umask="umask 007"
 
 # Check that the user inputted two arguments
 if [ -z "$1" ] || [ -z "$2" ]; then
@@ -147,7 +142,7 @@ fn_fix_umask(){
 	sleep 2
 	echo "Fixing user umask (default permissions on files)"
 	sleep 1
-	sed -i 's/"${defumask}"/${umask}/g' ${userdir}/.profile
+	sed -i "s/${defumask}/${umask}/g" "${userdir}"/.profile
 	echo "[OK] ${umask} set!"
 }
 
