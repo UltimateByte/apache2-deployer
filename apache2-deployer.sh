@@ -10,6 +10,8 @@
 homedir="/home"
 # The name of you website's folder (usually public_html or www)
 webdir="public_html"
+# Default shell defined with usermod -s (usually /bin/bash)
+usershell="/bin/bash"
 
 #############
 ## Program ##
@@ -158,6 +160,7 @@ fn_add_user(){
 		echo "Creating ${username}..."
 		sleep 1
 		useradd -m -d "${userdir}" "${username}"
+		usermod -s "${usershell}" "${username}"
 		echo "[OK] User created!"
 		echo ""
 		echo "[PASSWORD] Please, input a password for ${username}"
