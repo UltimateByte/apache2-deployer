@@ -20,7 +20,7 @@ Should work with most Debian based distros with Apache2 installed
 ````bash
 wget https://raw.githubusercontent.com/UltimateByte/apache2-deployer/master/apache2-deployer.sh
 ````
-#### Edit two lines of config if needed
+#### Edit settings part if needed
 ````bash
 nano apache2-deployer.sh
 ````
